@@ -39,14 +39,6 @@ Output Example:
 "Predicted units next month: 120"
 "Purchase probability: 0.78"
 
-📌 Project Status (Milestones)
-
-✅ Milestone 1 – Auth + Hosting (Login/Signup, DB connected)
-🔄 Milestone 2 – Product CRUD + Pagination
-🔄 Milestone 3 – Interactive Charts & Analytics
-🔄 Milestone 4 – ML Model Integration
-🔄 Milestone 5 – Final polish + Docs + Deployment
-
 🛠️ Project Structure
 InsightMart/
 ├── backend/      # Node.js + Prisma API
