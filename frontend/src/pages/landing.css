@@ -8,13 +8,15 @@
 .nav {
   position: fixed;
   top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  width: min(1100px, 92vw);
+  z-index: 10;
+}
+.nav__brand { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
   padding: 10px 16px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
@@ -22,18 +24,17 @@
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
 }
-.nav__brand { display: flex; align-items: center; gap: 10px; }
 .nav__logo {
-  width: 28px; height: 28px; display: grid; place-items: center;
+  width: 28px; 
+  height: 28px; 
+  display: grid; 
+  place-items: center;
   border-radius: 8px;
   background: linear-gradient(135deg, #a78bfa, #7c3aed);
   box-shadow: 0 6px 30px rgba(124, 58, 237, 0.45);
   font-weight: 700;
 }
 .nav__title { font-weight: 600; letter-spacing: 0.2px; }
-.nav__links { display: flex; align-items: center; gap: 16px; }
-.nav__link { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 14px; }
-.nav__link:hover { opacity: 0.85; }
 
 .hero {
   max-width: 1100px;

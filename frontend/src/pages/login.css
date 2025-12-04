@@ -51,13 +51,17 @@
   padding: 0 16px;
 }
 .social-btn .icon {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.12);
-  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.social-btn .icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .divider {
@@ -100,5 +104,21 @@
   text-decoration: none;
 }
 .link:hover { text-decoration: underline; }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error {
+  color: #fda4af;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+}
 
 

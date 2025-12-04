@@ -1,8 +1,18 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './landing.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Landing() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // Redirect to products if already logged in
+    const token = localStorage.getItem('token')
+    if (token) {
+      navigate('/products')
+    }
+  }, [navigate])
+
   return (
     <div className="landing">
       <header className="nav">
@@ -10,10 +20,6 @@ export default function Landing() {
           <div className="nav__logo" aria-hidden="true">⋔</div>
           <span className="nav__title">InsightMart</span>
         </div>
-        <nav className="nav__links">
-          <a href="#" className="nav__link">Home</a>
-          <a href="#" className="nav__link">Docs</a>
-        </nav>
       </header>
 
       <main className="hero">
