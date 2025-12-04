@@ -4,6 +4,11 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: {
+    type: String,
+    enum: ["seller", "customer"],
+    default: "customer",
+  },
 });
 
 // Ensure unique email index is applied

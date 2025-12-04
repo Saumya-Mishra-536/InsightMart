@@ -4,7 +4,7 @@ import './products.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
 
-export default function Products() {
+export default function CustomerHome() {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -22,26 +22,25 @@ export default function Products() {
   const [sortOrder, setSortOrder] = useState('desc')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const limit = 5
+  const limit = 8
 
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
-  // Reset page when filters change (except page itself)
   const prevFilters = useRef('')
-  
+
   useEffect(() => {
     if (!token) {
       navigate('/login')
       return
     }
-    
+
     const currentFilters = `${search}-${category}-${minPrice}-${maxPrice}-${minDiscount}-${maxDiscount}-${rating}-${sortBy}-${sortOrder}`
-    
+
     if (prevFilters.current && prevFilters.current !== currentFilters) {
       setPage(1)
     }
-    
+
     prevFilters.current = currentFilters
     fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +51,6 @@ export default function Products() {
       setLoading(true)
       setError('')
 
-      // Build query params for backend
       const params = new URLSearchParams()
       if (search) params.append('search', search)
       if (category) params.append('category', category)
@@ -66,13 +64,7 @@ export default function Products() {
       params.append('page', page)
       params.append('limit', limit)
 
-      const res = await fetch(`${API_BASE}/api/products/filter?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
+      const res = await fetch(`${API_BASE}/api/products/public?${params}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to fetch products')
 
@@ -105,30 +97,9 @@ export default function Products() {
     setPage(1)
   }
 
-  // Fetch categories separately for dropdown
-  const [categories, setCategories] = useState([])
-  
-  useEffect(() => {
-    async function fetchCategories() {
-      if (!token) return
-      try {
-        const res = await fetch(`${API_BASE}/api/products`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        const data = await res.json()
-        if (data.success && data.products) {
-          const uniqueCategories = [...new Set(data.products.map(p => p.category).filter(Boolean))]
-          setCategories(uniqueCategories)
-        }
-      } catch (err) {
-        // Ignore errors for categories
-      }
-    }
-    fetchCategories()
-  }, [token])
+  const categories = Array.from(
+    new Set(products.map(p => p.category).filter(Boolean))
+  )
 
   return (
     <div className="products-page">
@@ -137,20 +108,19 @@ export default function Products() {
 
       <header className="products-header">
         <div className="header-content">
-          <h1 className="header-title">My Products</h1>
+          <h1 className="header-title">Browse Products</h1>
           <div className="header-actions">
-            <Link to="/seller/dashboard" className="btn-dashboard">📊 Dashboard</Link>
-            <Link to="/seller/products/add" className="btn-add">+ Add Product</Link>
+            <Link to="/customer/cart" className="btn-dashboard">🛒 Cart</Link>
+            <Link to="/customer/orders" className="btn-add">📦 My Orders</Link>
             <button onClick={handleLogout} className="btn-logout">Logout</button>
           </div>
         </div>
         <div className="user-info">
-          <span>Welcome, {user?.name || 'User'}</span>
+          <span>Welcome, {user?.name || 'Customer'}</span>
         </div>
       </header>
 
       <main className="products-main">
-        {/* Search and Filters */}
         <div className="filters-section">
           <div className="search-bar">
             <input
@@ -249,13 +219,17 @@ export default function Products() {
           <div className="loading">Loading products...</div>
         ) : products.length === 0 ? (
           <div className="empty-state">
-            <p>No products found. Add your first product using the button above.</p>
+            <p>No products found.</p>
           </div>
         ) : (
           <>
             <div className="products-grid">
               {products.map(product => (
-                <div key={product._id} className="product-card" onClick={() => navigate(`/seller/products/${product._id}`)}>
+                <div
+                  key={product._id}
+                  className="product-card"
+                  onClick={() => navigate(`/customer/products/${product._id}`)}
+                >
                   <div className="product-header">
                     <h3 className="product-name">{product.name}</h3>
                     {product.discount > 0 && (
@@ -278,7 +252,6 @@ export default function Products() {
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="pagination">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -298,22 +271,11 @@ export default function Products() {
                 Next
               </button>
             </div>
-
-            {/* Visualize Data Button */}
-            <div className="visualize-section">
-              <Link to="/seller/dashboard" className="btn-visualize">
-                <span className="visualize-icon">📊</span>
-                <span className="visualize-text">Visualize Data</span>
-                <span className="visualize-arrow">→</span>
-              </Link>
-              <p className="visualize-description">
-                View analytics, charts, and insights for your products
-              </p>
-            </div>
           </>
         )}
       </main>
     </div>
   )
 }
+
 

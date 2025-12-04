@@ -113,7 +113,7 @@ export default function AddProduct() {
 
       setSuccess(true)
       setTimeout(() => {
-        navigate('/products')
+        navigate('/seller/products')
       }, 1500)
     } catch (err) {
       setError(err.message || 'Failed to create product')
@@ -129,7 +129,7 @@ export default function AddProduct() {
 
       <main className="add-product-card">
         <div className="card-header">
-          <Link to="/products" className="btn-back">
+          <Link to="/seller/products" className="btn-back">
             <span className="back-icon">←</span> Back to Products
           </Link>
           <div className="title-section">
@@ -276,7 +276,7 @@ export default function AddProduct() {
           </div>
 
           <div className="form-actions">
-            <Link to="/products" className="btn-cancel">
+            <Link to="/seller/products" className="btn-cancel">
               Cancel
             </Link>
             <button type="submit" className="submit-btn" disabled={loading}>

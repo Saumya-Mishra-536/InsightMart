@@ -12,34 +12,54 @@ export const getDashboardAnalytics = async (req, res) => {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
     // ---------------------------
-    // 1. SALES PER PRODUCT (only user's products)
+    // 1. SALES PER PRODUCT (only products owned by this seller)
     // ---------------------------
     const salesPerProduct = await Order.aggregate([
-      // Match orders for this user
-      { $match: { user: userObjectId } },
       { $unwind: "$products" },
-      {
-        $group: {
-          _id: "$products.product",
-          totalQuantity: { $sum: "$products.quantity" },
-          totalSales: { $sum: "$totalAmount" }
-        }
-      },
       {
         $lookup: {
           from: "products",
-          localField: "_id",
+          localField: "products.product",
           foreignField: "_id",
           as: "product"
         }
       },
       { $unwind: "$product" },
-      // Filter to only show user's products
+      // Only include products owned by this seller
       { $match: { "product.owner": userObjectId } },
+      {
+        $group: {
+          _id: "$product._id",
+          totalQuantity: { $sum: "$products.quantity" },
+          totalSales: {
+            $sum: {
+              $multiply: [
+                "$products.quantity",
+                {
+                  $multiply: [
+                    "$product.price",
+                    {
+                      $subtract: [
+                        1,
+                        {
+                          $divide: [
+                            { $ifNull: ["$product.discount", 0] },
+                            100
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
       {
         $project: {
           _id: 0,
-          productId: "$product._id",
+          productId: "$_id",
           name: "$product.name",
           totalQuantity: 1,
           totalSales: 1
@@ -55,10 +75,20 @@ export const getDashboardAnalytics = async (req, res) => {
       .slice(0, 5);
 
     // ---------------------------
-    // 3. ORDER COUNT OVER TIME (user's orders only)
+    // 3. ORDER COUNT OVER TIME (orders that include this seller's products)
     // ---------------------------
     const orderCount = await Order.aggregate([
-      { $match: { user: userObjectId } },
+      { $unwind: "$products" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" },
+      { $match: { "product.owner": userObjectId } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -70,13 +100,88 @@ export const getDashboardAnalytics = async (req, res) => {
     ]);
 
     // ---------------------------
+    // 4. CATEGORY-WISE SALES (by seller's products)
+    // ---------------------------
+    const categoryBreakdown = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" },
+      { $match: { "product.owner": userObjectId } },
+      {
+        $group: {
+          _id: "$product.category",
+          totalQuantity: { $sum: "$products.quantity" },
+          totalSales: {
+            $sum: {
+              $multiply: [
+                "$products.quantity",
+                {
+                  $multiply: [
+                    "$product.price",
+                    {
+                      $subtract: [
+                        1,
+                        {
+                          $divide: [
+                            { $ifNull: ["$product.discount", 0] },
+                            100
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalQuantity: 1,
+          totalSales: 1
+        }
+      }
+    ]);
+
+    // ---------------------------
+    // 5. SUMMARY TOTALS
+    // ---------------------------
+    const totalRevenue = salesPerProduct.reduce(
+      (sum, p) => sum + (p.totalSales || 0),
+      0
+    );
+    const totalUnits = salesPerProduct.reduce(
+      (sum, p) => sum + (p.totalQuantity || 0),
+      0
+    );
+    const totalProductsWithSales = salesPerProduct.length;
+    const totalOrderDays = orderCount.length;
+
+    // ---------------------------
     // RESPONSE
     // ---------------------------
     return res.status(200).json({
       success: true,
       salesPerProduct,
       mostOrdered,
-      orderCount
+      orderCount,
+      categoryBreakdown,
+      summary: {
+        totalRevenue,
+        totalUnits,
+        totalProductsWithSales,
+        totalOrderDays
+      }
     });
 
   } catch (error) {

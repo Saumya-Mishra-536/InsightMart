@@ -109,6 +109,30 @@ export const getProductById = async (req, res) => {
   }
 };
 
+// PUBLIC READ – get product by ID without owner scoping (for global catalog)
+export const getProductByIdPublic = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID format" });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(productId);
+    const product = await Product.findById(objectId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, product });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ success: false, message: "Invalid product ID format" });
+    }
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // UPDATE
 export const updateProduct = async (req, res) => {
   try {

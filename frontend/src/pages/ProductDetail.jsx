@@ -13,6 +13,7 @@ export default function ProductDetail() {
   const [deleting, setDeleting] = useState(false)
 
   const token = localStorage.getItem('token')
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
 
   useEffect(() => {
     if (!token) {
@@ -60,7 +61,7 @@ export default function ProductDetail() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to delete product')
 
-      navigate('/products')
+      navigate('/seller/products')
     } catch (err) {
       setError(err.message || 'Failed to delete product')
     } finally {
@@ -94,13 +95,15 @@ export default function ProductDetail() {
 
       <div className="detail-container">
         <div className="detail-header">
-          <Link to="/products" className="btn-back">← Back to Products</Link>
-          <div className="detail-actions">
-            <Link to={`/products/${id}/edit`} className="btn-edit">Edit</Link>
-            <button onClick={handleDelete} disabled={deleting} className="btn-delete">
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
+          <Link to="/seller/products" className="btn-back">← Back to Products</Link>
+          {user?.role === 'seller' && (
+            <div className="detail-actions">
+              <Link to={`/seller/products/${id}/edit`} className="btn-edit">Edit</Link>
+              <button onClick={handleDelete} disabled={deleting} className="btn-delete">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="detail-content">

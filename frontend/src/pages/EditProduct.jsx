@@ -147,7 +147,7 @@ export default function EditProduct() {
 
       setSuccess(true)
       setTimeout(() => {
-        navigate(`/products/${id}`)
+        navigate(`/seller/products/${id}`)
       }, 1500)
     } catch (err) {
       setError(err.message || 'Failed to update product')
@@ -171,7 +171,7 @@ export default function EditProduct() {
 
       <main className="add-product-card">
         <div className="card-header">
-          <Link to={`/products/${id}`} className="btn-back">
+          <Link to={`/seller/products/${id}`} className="btn-back">
             <span className="back-icon">←</span> Back to Product
           </Link>
           <div className="title-section">
@@ -318,7 +318,7 @@ export default function EditProduct() {
           </div>
 
           <div className="form-actions">
-            <Link to={`/products/${id}`} className="btn-cancel">
+            <Link to={`/seller/products/${id}`} className="btn-cancel">
               Cancel
             </Link>
             <button type="submit" className="submit-btn" disabled={saving}>

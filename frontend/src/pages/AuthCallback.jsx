@@ -20,7 +20,12 @@ export default function AuthCallback() {
         const user = JSON.parse(decodeURIComponent(userParam))
         localStorage.setItem('token', token)
         localStorage.setItem('user', JSON.stringify(user))
-        navigate('/products')
+        const role = user.role || 'customer'
+        if (role === 'seller') {
+          navigate('/seller/dashboard')
+        } else {
+          navigate('/customer/home')
+        }
       } catch (err) {
         navigate('/signup?error=invalid_response')
       }

@@ -3,7 +3,7 @@ import './signup.css'
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function Signup() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: 'customer' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -33,7 +33,7 @@ export default function Signup() {
       const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password })
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role })
       })
 
       const data = await res.json().catch(() => ({}))
@@ -43,8 +43,12 @@ export default function Signup() {
       if (data?.token && data?.user) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
-        // Redirect to products page (main page)
-        navigate('/products')
+        const role = data.user.role || 'customer'
+        if (role === 'seller') {
+          navigate('/seller/dashboard')
+        } else {
+          navigate('/customer/home')
+        }
       } else {
         // Fallback: if token is not provided, redirect to login
         navigate('/login')
@@ -89,6 +93,17 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="form">
           <label className="field">
             <input type="text" placeholder="Full name" className="input" value={form.name} onChange={update('name')} />
+          </label>
+
+          <label className="field">
+            <select
+              className="input"
+              value={form.role}
+              onChange={update('role')}
+            >
+              <option value="customer">Sign up as Customer</option>
+              <option value="seller">Sign up as Seller</option>
+            </select>
           </label>
 
           <label className="field">

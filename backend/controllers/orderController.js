@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import Cart from "../models/Cart.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -25,6 +26,13 @@ export const createOrder = async (req, res) => {
       products,
       totalAmount,
     });
+
+    // Clear user's cart after successful order
+    await Cart.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: { items: [] } },
+      { new: true }
+    );
 
     res.status(201).json({ success: true, order: newOrder });
   } catch (err) {

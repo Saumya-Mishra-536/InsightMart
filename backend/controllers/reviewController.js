@@ -82,6 +82,6 @@ const updateProductRating = async (productId) => {
 
   await Product.findByIdAndUpdate(productId, {
     rating: avgRating,
-    numReviews: totalReviews,
+    reviews: totalReviews,
   });
 };

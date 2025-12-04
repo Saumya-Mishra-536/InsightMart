@@ -7,16 +7,28 @@ const router = express.Router();
 // Signup route
 router.post("/signup", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    // Validate role (default to customer if not provided)
+    const normalizedRole = (role || "customer").toLowerCase();
+    if (!["seller", "customer"].includes(normalizedRole)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid role selected" });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ success: false, message: "User already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
 
     // Hash password and create user
@@ -25,14 +37,16 @@ router.post("/signup", async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: normalizedRole,
     });
 
     await user.save();
 
     // Generate token for new user
-    const token = signAccessToken({ 
-      id: user._id.toString(), 
-      email: user.email 
+    const token = signAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
     });
 
     res.status(201).json({
@@ -43,15 +57,20 @@ router.post("/signup", async (req, res) => {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (err) {
     console.error("Signup error:", err);
     // Handle duplicate email error
     if (err.code === 11000 || err.keyPattern?.email) {
-      return res.status(400).json({ success: false, message: "User already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
-    res.status(500).json({ success: false, message: err.message || "Internal server error" });
+    res
+      .status(500)
+      .json({ success: false, message: err.message || "Internal server error" });
   }
 });
 
@@ -77,9 +96,10 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate token
-    const token = signAccessToken({ 
-      id: user._id.toString(), 
-      email: user.email 
+    const token = signAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role || "customer",
     });
 
     res.json({
@@ -89,6 +109,7 @@ router.post("/login", async (req, res) => {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role || "customer",
       },
     });
   } catch (err) {

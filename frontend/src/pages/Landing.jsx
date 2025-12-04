@@ -6,10 +6,15 @@ export default function Landing() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Redirect to products if already logged in
+    // Redirect to appropriate dashboard if already logged in
     const token = localStorage.getItem('token')
     if (token) {
-      navigate('/products')
+      const user = JSON.parse(localStorage.getItem('user') || 'null')
+      if (user?.role === 'seller') {
+        navigate('/seller/dashboard')
+      } else {
+        navigate('/customer/home')
+      }
     }
   }, [navigate])
 

@@ -10,13 +10,18 @@ import {
   deleteByCategory,
   searchProducts,
   advancedFilter,
+  getProductByIdPublic,
 } from "../controllers/productController.js";
 
 import auth from "../utils/auth.js";
 
 const router = express.Router();
 
-// READ (Require login)
+// Public READ endpoints (global catalog for customers)
+router.get("/public", advancedFilter);
+router.get("/public/:id", getProductByIdPublic);
+
+// READ (Require login - seller scoped)
 router.get("/", auth, getAllProducts);
 router.get("/search", auth, searchProducts); // Must come before /:id
 router.get("/filter", auth, advancedFilter); // Must come before /:id

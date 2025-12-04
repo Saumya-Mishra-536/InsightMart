@@ -9,11 +9,6 @@ function getJwtAccessSecret() {
   return secret;
 }
 
-function getJwtRefreshSecret() {
-  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'your-secret-refresh-token-key-change-in-production';
-  return secret;
-}
-
 export async function hashPassword(password) {
   return bcrypt.hash(password, SALT_ROUNDS);
 }
@@ -28,14 +23,6 @@ export function signAccessToken(payload) {
     throw new Error('JWT_ACCESS_SECRET is not configured');
   }
   return jwt.sign(payload, secret, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || '15m' });
-}
-
-export function signRefreshToken(payload) {
-  const secret = getJwtRefreshSecret();
-  if (!secret) {
-    throw new Error('JWT_REFRESH_SECRET is not configured');
-  }
-  return jwt.sign(payload, secret, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || '7d' });
 }
 
 export function verifyToken(token, secret) {

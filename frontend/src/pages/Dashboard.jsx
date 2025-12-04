@@ -37,6 +37,13 @@ const DashboardAnalytics = () => {
   const [salesPerProduct, setSalesPerProduct] = useState([]);
   const [mostOrdered, setMostOrdered] = useState([]);
   const [orderCount, setOrderCount] = useState([]);
+  const [categoryBreakdown, setCategoryBreakdown] = useState([]);
+  const [summary, setSummary] = useState({
+    totalRevenue: 0,
+    totalUnits: 0,
+    totalProductsWithSales: 0,
+    totalOrderDays: 0,
+  });
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -66,6 +73,13 @@ const DashboardAnalytics = () => {
       setSalesPerProduct(data.salesPerProduct || []);
       setMostOrdered(data.mostOrdered || []);
       setOrderCount(data.orderCount || []);
+      setCategoryBreakdown(data.categoryBreakdown || []);
+      setSummary({
+        totalRevenue: data.summary?.totalRevenue || 0,
+        totalUnits: data.summary?.totalUnits || 0,
+        totalProductsWithSales: data.summary?.totalProductsWithSales || (data.salesPerProduct?.length || 0),
+        totalOrderDays: data.summary?.totalOrderDays || (data.orderCount?.length || 0),
+      });
     } catch (err) {
       setError(err.message || "Failed to load analytics");
       console.error("Analytics error:", err);
@@ -157,7 +171,7 @@ const DashboardAnalytics = () => {
         <div className="header-content">
           <h1 className="header-title">Analytics Dashboard</h1>
           <div className="header-actions">
-            <Link to="/products" className="btn-nav">Products</Link>
+            <Link to="/seller/products" className="btn-nav">Products</Link>
             <button onClick={handleLogout} className="btn-logout">Logout</button>
           </div>
         </div>
@@ -278,25 +292,51 @@ const DashboardAnalytics = () => {
                 <h3 className="section-title">Quick Stats</h3>
                 <div className="stats-grid">
                   <div className="stat-card">
-                    <div className="stat-value">{salesPerProduct.length}</div>
+                    <div className="stat-value">{summary.totalProductsWithSales}</div>
                     <div className="stat-label">Products with Sales</div>
                   </div>
                   <div className="stat-card">
                     <div className="stat-value">
-                      {salesPerProduct.reduce((sum, p) => sum + (p.totalQuantity || 0), 0)}
+                      {summary.totalUnits}
                     </div>
                     <div className="stat-label">Total Units Sold</div>
                   </div>
                   <div className="stat-card">
                     <div className="stat-value">
-                      ${salesPerProduct.reduce((sum, p) => sum + (p.totalSales || 0), 0).toFixed(2)}
+                      ${summary.totalRevenue.toFixed(2)}
                     </div>
                     <div className="stat-label">Total Revenue</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-value">{orderCount.length}</div>
+                    <div className="stat-value">{summary.totalOrderDays}</div>
                     <div className="stat-label">Days with Orders</div>
                   </div>
+                </div>
+              </section>
+
+              {/* SECTION 5: CATEGORY-WISE SALES */}
+              <section className="analytics-section">
+                <h3 className="section-title">Category-wise Sales</h3>
+                <div className="chart-box">
+                  {categoryBreakdown.length > 0 ? (
+                    <Bar
+                      data={{
+                        labels: categoryBreakdown.map((c) => c.category || "Unknown"),
+                        datasets: [
+                          {
+                            label: "Revenue",
+                            data: categoryBreakdown.map((c) => c.totalSales || 0),
+                            backgroundColor: "rgba(59, 130, 246, 0.6)",
+                            borderColor: "rgba(59, 130, 246, 1)",
+                            borderWidth: 1,
+                          },
+                        ],
+                      }}
+                      options={barOptions}
+                    />
+                  ) : (
+                    <p className="chart-placeholder">No category breakdown available</p>
+                  )}
                 </div>
               </section>
             </div>
