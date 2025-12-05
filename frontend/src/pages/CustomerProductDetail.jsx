@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import Card from '../components/Card'
+import Button from '../components/Button'
 import './productDetail.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
@@ -78,6 +80,7 @@ export default function CustomerProductDetail() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to add to cart')
+      navigate('/customer/cart')
     } catch (err) {
       setError(err.message || 'Failed to add to cart')
     } finally {
@@ -135,7 +138,10 @@ export default function CustomerProductDetail() {
   if (loading) {
     return (
       <div className="product-detail-page">
-        <div className="loading">Loading product...</div>
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading product...</p>
+        </div>
       </div>
     )
   }
@@ -143,8 +149,8 @@ export default function CustomerProductDetail() {
   if (error || !product) {
     return (
       <div className="product-detail-page">
-        <div className="error">{error || 'Product not found'}</div>
-        <Link to="/customer/home" className="btn-back">Back to Products</Link>
+        <div className="alert alert-error">{error || 'Product not found'}</div>
+        <Link to="/customer/home" className="btn btn-secondary">Back to Products</Link>
       </div>
     )
   }
@@ -152,150 +158,153 @@ export default function CustomerProductDetail() {
   const finalPrice = product.price * (1 - (product.discount || 0) / 100)
 
   return (
-    <div className="product-detail-page">
+    <div className="product-detail-page animate-fade-in">
       <div className="orb orb--pink" />
       <div className="orb orb--gray" />
 
       <div className="detail-container">
         <div className="detail-header">
           <Link to="/customer/home" className="btn-back">← Back to Products</Link>
-          <div className="detail-actions">
-            <Link to="/customer/cart" className="btn-edit">Go to Cart</Link>
-          </div>
         </div>
 
-        <div className="detail-content">
-          <div className="detail-main">
-            <div className="product-title-section">
+        <div className="detail-content-grid">
+          {/* Product Image & Info */}
+          <Card className="product-main-card">
+            <div className="product-header-row">
               <h1 className="product-title">{product.name}</h1>
               {product.discount > 0 && (
                 <span className="discount-badge-large">-{product.discount}% OFF</span>
               )}
             </div>
 
-            <div className="product-info-grid">
-              <div className="info-item">
-                <label>SKU</label>
-                <div className="info-value">{product.sku}</div>
-              </div>
+            <div className="product-meta-row">
+              <span className="product-category-tag">{product.category}</span>
+              <span className="product-sku">SKU: {product.sku}</span>
+            </div>
 
-              <div className="info-item">
-                <label>Category</label>
-                <div className="info-value">{product.category}</div>
-              </div>
-
-              <div className="info-item">
-                <label>Rating</label>
-                <div className="info-value">
-                  {'⭐'.repeat(Math.floor(product.rating || 0))} {product.rating || 0}/5
-                </div>
-              </div>
-
-              <div className="info-item">
-                <label>Reviews</label>
-                <div className="info-value">{product.reviews || 0}</div>
-              </div>
+            <div className="product-rating-large">
+              {'⭐'.repeat(Math.floor(product.rating || 0))}
+              <span className="rating-text">({product.reviews || 0} reviews)</span>
             </div>
 
             <div className="price-section">
-              <div className="price-final">${finalPrice.toFixed(2)}</div>
-              {product.discount > 0 && (
-                <div className="price-original">${product.price.toFixed(2)}</div>
-              )}
+              <div className="price-row">
+                <span className="price-final">${finalPrice.toFixed(2)}</span>
+                {product.discount > 0 && (
+                  <span className="price-original">${product.price.toFixed(2)}</span>
+                )}
+              </div>
               {product.discount > 0 && (
                 <div className="discount-amount">You save ${(product.price - finalPrice).toFixed(2)}</div>
               )}
+            </div>
+
+            <div className="add-to-cart-section">
+              <div className="quantity-selector">
+                <button
+                  className="qty-btn"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                >−</button>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="qty-input"
+                />
+                <button
+                  className="qty-btn"
+                  onClick={() => setQuantity(quantity + 1)}
+                >+</button>
+              </div>
+              <Button
+                variant="primary"
+                className="btn-add-cart"
+                onClick={handleAddToCart}
+                isLoading={cartLoading}
+              >
+                Add to Cart
+              </Button>
             </div>
 
             <div className="meta-info">
               <div>Created: {new Date(product.createdAt).toLocaleDateString()}</div>
               <div>Last Updated: {new Date(product.updatedAt).toLocaleDateString()}</div>
             </div>
+          </Card>
 
-            <div className="price-section" style={{ marginTop: '24px' }}>
-              <label>
-                Quantity:{' '}
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={e => setQuantity(e.target.value)}
-                  style={{ width: '80px', marginLeft: '8px' }}
-                />
-              </label>
-              <button
-                className="btn-edit"
-                style={{ marginLeft: '16px' }}
-                onClick={handleAddToCart}
-                disabled={cartLoading}
-              >
-                {cartLoading ? 'Adding…' : 'Add to Cart'}
-              </button>
-            </div>
-
-            {/* Reviews section */}
-            <div className="sales-section" style={{ marginTop: '32px' }}>
+          {/* Reviews Section */}
+          <div className="reviews-section">
+            <Card className="reviews-card">
               <h3>Customer Reviews</h3>
 
-              {reviewError && <div className="error">{reviewError}</div>}
+              {reviewError && <div className="alert alert-error">{reviewError}</div>}
 
-              {reviewLoading ? (
-                <div className="loading">Loading reviews...</div>
-              ) : reviews.length === 0 ? (
-                <p>No reviews yet. Be the first to review this product.</p>
-              ) : (
-                <div className="sales-list">
-                  {reviews.map((rev) => (
-                    <div key={rev._id} className="sales-item">
-                      <span className="sales-month">
-                        {rev.user?.name || 'Anonymous'} – {'⭐'.repeat(rev.rating)} ({rev.rating}/5)
-                      </span>
-                      <span className="sales-amount">
-                        {rev.comment || ''}
-                        {rev.user?._id === user?.id && (
-                          <button
-                            className="btn-clear"
-                            style={{ marginLeft: '8px' }}
-                            onClick={() => handleDeleteReview(rev._id)}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </span>
+              <div className="reviews-list">
+                {reviewLoading ? (
+                  <div className="loading-small">Loading reviews...</div>
+                ) : reviews.length === 0 ? (
+                  <p className="no-reviews">No reviews yet. Be the first to review this product.</p>
+                ) : (
+                  reviews.map((rev) => (
+                    <div key={rev._id} className="review-item">
+                      <div className="review-header">
+                        <span className="review-author">{rev.user?.name || 'Anonymous'}</span>
+                        <span className="review-rating">{'⭐'.repeat(rev.rating)}</span>
+                      </div>
+                      <p className="review-comment">{rev.comment}</p>
+                      {rev.user?._id === user?.id && (
+                        <button
+                          className="btn-delete-review"
+                          onClick={() => handleDeleteReview(rev._id)}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
 
-              <form onSubmit={handleSubmitReview} style={{ marginTop: '16px' }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <label>
-                    Rating:{' '}
-                    <select value={rating} onChange={e => setRating(e.target.value)}>
-                      {[5, 4, 3, 2, 1].map(r => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                  </label>
+              <form onSubmit={handleSubmitReview} className="review-form">
+                <h4>Write a Review</h4>
+                <div className="form-group">
+                  <label>Rating</label>
+                  <div className="rating-select">
+                    {[5, 4, 3, 2, 1].map(r => (
+                      <label key={r} className={`rating-option ${rating === r ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="rating"
+                          value={r}
+                          checked={rating === r}
+                          onChange={() => setRating(r)}
+                        />
+                        {r} ⭐
+                      </label>
+                    ))}
+                  </div>
                 </div>
-                <div style={{ marginBottom: '8px' }}>
+                <div className="form-group">
+                  <label>Comment</label>
                   <textarea
                     rows={3}
-                    placeholder="Write your review..."
+                    placeholder="Share your thoughts..."
                     value={comment}
                     onChange={e => setComment(e.target.value)}
-                    style={{ width: '100%' }}
+                    className="input-field textarea"
                   />
                 </div>
-                <button
-                  className="btn-edit"
+                <Button
                   type="submit"
-                  disabled={submittingReview}
+                  variant="secondary"
+                  isLoading={submittingReview}
+                  disabled={!comment.trim()}
                 >
-                  {submittingReview ? 'Submitting…' : 'Submit Review'}
-                </button>
+                  Submit Review
+                </Button>
               </form>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

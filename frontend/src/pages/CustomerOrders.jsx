@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import './products.css'
+import Card from '../components/Card'
+import Button from '../components/Button'
+import './orders.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
 
@@ -41,65 +43,93 @@ export default function CustomerOrders() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="orders-page">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading orders...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="products-page">
+    <div className="orders-page animate-fade-in">
       <div className="orb orb--pink" />
       <div className="orb orb--gray" />
 
-      <header className="products-header">
-        <div className="header-content">
-          <h1 className="header-title">My Orders</h1>
-          <div className="header-actions">
-            <Link to="/customer/home" className="btn-dashboard">← Back to Products</Link>
-          </div>
+      <div className="orders-container">
+        <div className="orders-header">
+          <h1 className="page-title">My Orders</h1>
+          <Link to="/customer/home" className="btn-link">← Back to Products</Link>
         </div>
-      </header>
 
-      <main className="products-main">
-        {error && <div className="error">{error}</div>}
+        {error && <div className="alert alert-error">{error}</div>}
 
-        {loading ? (
-          <div className="loading">Loading orders...</div>
-        ) : orders.length === 0 ? (
-          <div className="empty-state">
-            <p>You have no orders yet.</p>
-            <Link to="/customer/home" className="btn-visualize">Start Shopping</Link>
-          </div>
+        {orders.length === 0 ? (
+          <Card className="empty-orders-card">
+            <div className="empty-state">
+              <span className="emoji-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </span>
+              <h3>You have no orders yet</h3>
+              <p>Start shopping to see your orders here.</p>
+              <Link to="/customer/home">
+                <Button variant="primary">Start Shopping</Button>
+              </Link>
+            </div>
+          </Card>
         ) : (
-          <div className="products-grid">
+          <div className="orders-grid">
             {orders.map(order => (
-              <div key={order._id} className="product-card">
-                <div className="product-header">
-                  <h3 className="product-name">Order #{order._id.slice(-6)}</h3>
+              <Card key={order._id} className="order-card" hover>
+                <div className="order-header">
+                  <div className="order-id">
+                    <span className="label">Order ID</span>
+                    <span className="value">#{order._id.slice(-6)}</span>
+                  </div>
+                  <div className="order-date">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
-                <div className="product-category">
-                  Placed on {new Date(order.createdAt).toLocaleDateString()}
-                </div>
-                <div className="product-price">
-                  Total: ${order.totalAmount?.toFixed(2) ?? '0.00'}
-                </div>
-                <div className="sales-list">
+
+                <div className="order-items">
                   {order.products?.map((item, idx) => (
-                    <div key={idx} className="sales-item" style={{ cursor: 'pointer' }}
+                    <div
+                      key={idx}
+                      className="order-item"
                       onClick={() => {
                         const productId = item.product?._id || item.product
                         if (productId) navigate(`/customer/products/${productId}`)
                       }}
                     >
-                      <span className="sales-month">
-                        {item.product?.name || 'Product'}
-                      </span>
-                      <span className="sales-amount">
-                        Qty: {item.quantity}
-                      </span>
+                      <div className="item-info">
+                        <span className="item-name">{item.product?.name || 'Product'}</span>
+                        <span className="item-qty">Qty: {item.quantity}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
+
+                <div className="order-footer">
+                  <div className="order-total">
+                    <span className="label">Total Amount</span>
+                    <span className="value">${order.totalAmount?.toFixed(2) ?? '0.00'}</span>
+                  </div>
+                  <div className="order-status">
+                    <span className="status-badge">Completed</span>
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
 }

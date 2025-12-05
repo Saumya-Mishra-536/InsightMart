@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./Dashboard.css";
-
 import { Bar, Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -15,6 +13,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import Card from "../components/Card";
+import "./Dashboard.css";
 
 ChartJS.register(
   CategoryScale,
@@ -46,7 +46,6 @@ const DashboardAnalytics = () => {
   });
 
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   useEffect(() => {
     if (!token) {
@@ -88,261 +87,211 @@ const DashboardAnalytics = () => {
     }
   }
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  }
-
   // Chart options
-  const barOptions = {
+  const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        labels: { color: "rgba(255,255,255,0.8)" },
+        labels: { color: "rgba(255,255,255,0.7)", font: { family: "'Inter', sans-serif" } },
       },
       tooltip: {
-        backgroundColor: "rgba(0,0,0,0.8)",
+        backgroundColor: "rgba(11, 11, 12, 0.9)",
         titleColor: "#fff",
         bodyColor: "#fff",
+        borderColor: "rgba(255,255,255,0.1)",
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 8,
       },
     },
     scales: {
       x: {
-        ticks: { color: "rgba(255,255,255,0.7)" },
-        grid: { color: "rgba(255,255,255,0.1)" },
+        ticks: { color: "rgba(255,255,255,0.6)", font: { family: "'Inter', sans-serif" } },
+        grid: { color: "rgba(255,255,255,0.05)" },
       },
       y: {
-        ticks: { color: "rgba(255,255,255,0.7)" },
-        grid: { color: "rgba(255,255,255,0.1)" },
+        ticks: { color: "rgba(255,255,255,0.6)", font: { family: "'Inter', sans-serif" } },
+        grid: { color: "rgba(255,255,255,0.05)" },
       },
     },
   };
 
   const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
+    ...commonOptions,
+    scales: {}, // Pie charts don't have scales
     plugins: {
+      ...commonOptions.plugins,
       legend: {
         position: "bottom",
-        labels: { color: "rgba(255,255,255,0.8)", padding: 15 },
-      },
-      tooltip: {
-        backgroundColor: "rgba(0,0,0,0.8)",
-        titleColor: "#fff",
-        bodyColor: "#fff",
-      },
-    },
-  };
-
-  const lineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        labels: { color: "rgba(255,255,255,0.8)" },
-      },
-      tooltip: {
-        backgroundColor: "rgba(0,0,0,0.8)",
-        titleColor: "#fff",
-        bodyColor: "#fff",
-      },
-    },
-    scales: {
-      x: {
-        ticks: { color: "rgba(255,255,255,0.7)" },
-        grid: { color: "rgba(255,255,255,0.1)" },
-      },
-      y: {
-        ticks: { color: "rgba(255,255,255,0.7)" },
-        grid: { color: "rgba(255,255,255,0.1)" },
+        labels: { color: "rgba(255,255,255,0.7)", padding: 20, font: { family: "'Inter', sans-serif" } },
       },
     },
   };
 
   return (
-    <div className="analytics-page">
-      {/* ORBS */}
-      <div className="orb orb--pink"></div>
-      <div className="orb orb--gray"></div>
+    <div className="dashboard-page animate-fade-in">
+      <div className="dashboard-header-section">
+        <div>
+          <h1 className="page-title">Analytics Overview</h1>
+          <p className="page-subtitle">Track your business performance and growth</p>
+        </div>
+        <div className="header-actions">
+          <Link to="/seller/products" className="btn btn-primary">Manage Products</Link>
+        </div>
+      </div>
 
-      <header className="dashboard-header">
-        <div className="header-content">
-          <h1 className="header-title">Analytics Dashboard</h1>
-          <div className="header-actions">
-            <Link to="/seller/products" className="btn-nav">Products</Link>
-            <button onClick={handleLogout} className="btn-logout">Logout</button>
+      {error && (
+        <div className="alert alert-error">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading analytics data...</p>
+        </div>
+      ) : (
+        <div className="dashboard-grid">
+          {/* Summary Stats */}
+          <div className="stats-grid">
+            <Card className="stat-card" hover>
+              <div className="stat-label">Total Revenue</div>
+              <div className="stat-value">${summary.totalRevenue.toFixed(2)}</div>
+              <div className="stat-trend positive">↗ +12.5%</div>
+            </Card>
+            <Card className="stat-card" hover>
+              <div className="stat-label">Units Sold</div>
+              <div className="stat-value">{summary.totalUnits}</div>
+              <div className="stat-trend positive">↗ +5.2%</div>
+            </Card>
+            <Card className="stat-card" hover>
+              <div className="stat-label">Active Products</div>
+              <div className="stat-value">{summary.totalProductsWithSales}</div>
+              <div className="stat-trend neutral">− 0%</div>
+            </Card>
+            <Card className="stat-card" hover>
+              <div className="stat-label">Order Days</div>
+              <div className="stat-value">{summary.totalOrderDays}</div>
+              <div className="stat-trend positive">↗ +2.1%</div>
+            </Card>
+          </div>
+
+          {/* Charts Row 1 */}
+          <div className="charts-row">
+            <Card className="chart-card wide">
+              <h3 className="card-title">Sales Per Product</h3>
+              <div className="chart-container">
+                {salesPerProduct.length > 0 ? (
+                  <Bar
+                    data={{
+                      labels: salesPerProduct.map((p) => p.name || "Unknown"),
+                      datasets: [
+                        {
+                          label: "Quantity Sold",
+                          data: salesPerProduct.map((p) => p.totalQuantity || 0),
+                          backgroundColor: "rgba(124, 58, 237, 0.7)",
+                          borderRadius: 4,
+                          hoverBackgroundColor: "rgba(124, 58, 237, 0.9)",
+                        },
+                      ],
+                    }}
+                    options={commonOptions}
+                  />
+                ) : (
+                  <div className="empty-state">No sales data available</div>
+                )}
+              </div>
+            </Card>
+
+            <Card className="chart-card">
+              <h3 className="card-title">Top Products</h3>
+              <div className="chart-container pie-container">
+                {mostOrdered.length > 0 ? (
+                  <Pie
+                    data={{
+                      labels: mostOrdered.map((p) => p.name || "Unknown"),
+                      datasets: [
+                        {
+                          data: mostOrdered.map((p) => p.totalQuantity || 0),
+                          backgroundColor: [
+                            "rgba(124, 58, 237, 0.7)",
+                            "rgba(236, 72, 153, 0.7)",
+                            "rgba(59, 130, 246, 0.7)",
+                            "rgba(16, 185, 129, 0.7)",
+                            "rgba(245, 158, 11, 0.7)",
+                          ],
+                          borderWidth: 0,
+                        },
+                      ],
+                    }}
+                    options={pieOptions}
+                  />
+                ) : (
+                  <div className="empty-state">No data available</div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Charts Row 2 */}
+          <div className="charts-row">
+            <Card className="chart-card">
+              <h3 className="card-title">Orders Trend</h3>
+              <div className="chart-container">
+                {orderCount.length > 0 ? (
+                  <Line
+                    data={{
+                      labels: orderCount.map((o) => o._id || "Unknown"),
+                      datasets: [
+                        {
+                          label: "Daily Orders",
+                          data: orderCount.map((o) => o.count || 0),
+                          borderColor: "#ec4899",
+                          backgroundColor: "rgba(236, 72, 153, 0.1)",
+                          borderWidth: 2,
+                          tension: 0.4,
+                          fill: true,
+                          pointBackgroundColor: "#ec4899",
+                        },
+                      ],
+                    }}
+                    options={commonOptions}
+                  />
+                ) : (
+                  <div className="empty-state">No trend data available</div>
+                )}
+              </div>
+            </Card>
+
+            <Card className="chart-card">
+              <h3 className="card-title">Category Performance</h3>
+              <div className="chart-container">
+                {categoryBreakdown.length > 0 ? (
+                  <Bar
+                    data={{
+                      labels: categoryBreakdown.map((c) => c.category || "Unknown"),
+                      datasets: [
+                        {
+                          label: "Revenue",
+                          data: categoryBreakdown.map((c) => c.totalSales || 0),
+                          backgroundColor: "rgba(59, 130, 246, 0.7)",
+                          borderRadius: 4,
+                          hoverBackgroundColor: "rgba(59, 130, 246, 0.9)",
+                        },
+                      ],
+                    }}
+                    options={commonOptions}
+                  />
+                ) : (
+                  <div className="empty-state">No category data available</div>
+                )}
+              </div>
+            </Card>
           </div>
         </div>
-        <div className="user-info">
-          <span>Welcome, {user?.name || "User"}</span>
-        </div>
-      </header>
-
-      <main className="analytics-main">
-        <div className="analytics-card">
-          <div className="analytics-header">
-            <h2 className="title">Product & Order Insights</h2>
-            <p className="subtitle">Visual overview of your business analytics</p>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          {loading ? (
-            <div className="loading-state">Loading analytics...</div>
-          ) : (
-            <div className="analytics-sections">
-              {/* SECTION 1: SALES PER PRODUCT */}
-              <section className="analytics-section">
-                <h3 className="section-title">Sales Per Product</h3>
-                <div className="chart-box">
-                  {salesPerProduct.length > 0 ? (
-                    <Bar
-                      data={{
-                        labels: salesPerProduct.map((p) => p.name || "Unknown"),
-                        datasets: [
-                          {
-                            label: "Quantity Sold",
-                            data: salesPerProduct.map((p) => p.totalQuantity || 0),
-                            backgroundColor: "rgba(168, 85, 247, 0.6)",
-                            borderColor: "rgba(168, 85, 247, 1)",
-                            borderWidth: 1,
-                          },
-                        ],
-                      }}
-                      options={barOptions}
-                    />
-                  ) : (
-                    <p className="chart-placeholder">No sales data available</p>
-                  )}
-                </div>
-              </section>
-
-              {/* SECTION 2: TOP ORDERED PRODUCTS */}
-              <section className="analytics-section">
-                <h3 className="section-title">Top Ordered Products</h3>
-                <div className="chart-box">
-                  {mostOrdered.length > 0 ? (
-                    <Pie
-                      data={{
-                        labels: mostOrdered.map((p) => p.name || "Unknown"),
-                        datasets: [
-                          {
-                            label: "Orders",
-                            data: mostOrdered.map((p) => p.totalQuantity || 0),
-                            backgroundColor: [
-                              "rgba(168, 85, 247, 0.6)",
-                              "rgba(244, 114, 182, 0.6)",
-                              "rgba(59, 130, 246, 0.6)",
-                              "rgba(34, 197, 94, 0.6)",
-                              "rgba(251, 191, 36, 0.6)",
-                            ],
-                            borderColor: [
-                              "rgba(168, 85, 247, 1)",
-                              "rgba(244, 114, 182, 1)",
-                              "rgba(59, 130, 246, 1)",
-                              "rgba(34, 197, 94, 1)",
-                              "rgba(251, 191, 36, 1)",
-                            ],
-                            borderWidth: 2,
-                          },
-                        ],
-                      }}
-                      options={pieOptions}
-                    />
-                  ) : (
-                    <p className="chart-placeholder">No order data available</p>
-                  )}
-                </div>
-              </section>
-
-              {/* SECTION 3: ORDER COUNT OVER TIME */}
-              <section className="analytics-section">
-                <h3 className="section-title">Orders Over Time (Daily)</h3>
-                <div className="chart-box">
-                  {orderCount.length > 0 ? (
-                    <Line
-                      data={{
-                        labels: orderCount.map((o) => o._id || "Unknown"),
-                        datasets: [
-                          {
-                            label: "Orders",
-                            data: orderCount.map((o) => o.count || 0),
-                            borderColor: "rgba(244, 114, 182, 1)",
-                            backgroundColor: "rgba(244, 114, 182, 0.1)",
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                          },
-                        ],
-                      }}
-                      options={lineOptions}
-                    />
-                  ) : (
-                    <p className="chart-placeholder">No order history available</p>
-                  )}
-                </div>
-              </section>
-
-              {/* SECTION 4: SUMMARY STATS */}
-              <section className="analytics-section stats-section">
-                <h3 className="section-title">Quick Stats</h3>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-value">{summary.totalProductsWithSales}</div>
-                    <div className="stat-label">Products with Sales</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      {summary.totalUnits}
-                    </div>
-                    <div className="stat-label">Total Units Sold</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      ${summary.totalRevenue.toFixed(2)}
-                    </div>
-                    <div className="stat-label">Total Revenue</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">{summary.totalOrderDays}</div>
-                    <div className="stat-label">Days with Orders</div>
-                  </div>
-                </div>
-              </section>
-
-              {/* SECTION 5: CATEGORY-WISE SALES */}
-              <section className="analytics-section">
-                <h3 className="section-title">Category-wise Sales</h3>
-                <div className="chart-box">
-                  {categoryBreakdown.length > 0 ? (
-                    <Bar
-                      data={{
-                        labels: categoryBreakdown.map((c) => c.category || "Unknown"),
-                        datasets: [
-                          {
-                            label: "Revenue",
-                            data: categoryBreakdown.map((c) => c.totalSales || 0),
-                            backgroundColor: "rgba(59, 130, 246, 0.6)",
-                            borderColor: "rgba(59, 130, 246, 1)",
-                            borderWidth: 1,
-                          },
-                        ],
-                      }}
-                      options={barOptions}
-                    />
-                  ) : (
-                    <p className="chart-placeholder">No category breakdown available</p>
-                  )}
-                </div>
-              </section>
-            </div>
-          )}
-        </div>
-      </main>
+      )}
     </div>
   );
 };

@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import Card from '../components/Card'
+import Button from '../components/Button'
+import Input from '../components/Input'
 import './products.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
@@ -25,8 +28,6 @@ export default function CustomerHome() {
   const limit = 8
 
   const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-
   const prevFilters = useRef('')
 
   useEffect(() => {
@@ -78,12 +79,6 @@ export default function CustomerHome() {
     }
   }
 
-  function handleLogout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    navigate('/login')
-  }
-
   function clearFilters() {
     setSearch('')
     setCategory('')
@@ -102,180 +97,216 @@ export default function CustomerHome() {
   )
 
   return (
-    <div className="products-page">
-      <div className="orb orb--pink" />
-      <div className="orb orb--gray" />
-
-      <header className="products-header">
-        <div className="header-content">
-          <h1 className="header-title">Browse Products</h1>
-          <div className="header-actions">
-            <Link to="/customer/cart" className="btn-dashboard">🛒 Cart</Link>
-            <Link to="/customer/orders" className="btn-add">📦 My Orders</Link>
-            <button onClick={handleLogout} className="btn-logout">Logout</button>
-          </div>
+    <div className="products-page animate-fade-in">
+      <div className="dashboard-header-section">
+        <div>
+          <h1 className="page-title">Browse Products</h1>
+          <p className="page-subtitle">Discover amazing deals and new arrivals</p>
         </div>
-        <div className="user-info">
-          <span>Welcome, {user?.name || 'Customer'}</span>
+        <div className="header-actions">
+          <Link to="/customer/cart" className="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            View Cart
+          </Link>
         </div>
-      </header>
+      </div>
 
-      <main className="products-main">
-        <div className="filters-section">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by name or SKU..."
-              className="input-search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+      <div className="products-layout">
+        {/* Sidebar Filters */}
+        <aside className="filters-sidebar">
+          <Card className="filters-card">
+            <div className="filters-header">
+              <h3>Filters</h3>
+              <button onClick={clearFilters} className="btn-link">Clear All</button>
+            </div>
 
-          <div className="filters-grid">
-            <select
-              className="filter-select"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+            <div className="filter-group">
+              <label>Search</label>
+              <Input
+                type="text"
+                placeholder="Name or SKU..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
-            <input
-              type="number"
-              placeholder="Min Price"
-              className="filter-input"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              min="0"
-            />
+            <div className="filter-group">
+              <label>Category</label>
+              <select
+                className="input-field"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              type="number"
-              placeholder="Max Price"
-              className="filter-input"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              min="0"
-            />
+            <div className="filter-group">
+              <label>Price Range</label>
+              <div className="range-inputs">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  min="0"
+                />
+                <span>-</span>
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  min="0"
+                />
+              </div>
+            </div>
 
-            <input
-              type="number"
-              placeholder="Min Discount %"
-              className="filter-input"
-              value={minDiscount}
-              onChange={(e) => setMinDiscount(e.target.value)}
-              min="0"
-              max="100"
-            />
+            <div className="filter-group">
+              <label>Discount %</label>
+              <div className="range-inputs">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={minDiscount}
+                  onChange={(e) => setMinDiscount(e.target.value)}
+                  min="0"
+                  max="100"
+                />
+                <span>-</span>
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={maxDiscount}
+                  onChange={(e) => setMaxDiscount(e.target.value)}
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
 
-            <input
-              type="number"
-              placeholder="Max Discount %"
-              className="filter-input"
-              value={maxDiscount}
-              onChange={(e) => setMaxDiscount(e.target.value)}
-              min="0"
-              max="100"
-            />
+            <div className="filter-group">
+              <label>Rating</label>
+              <select
+                className="input-field"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+              >
+                <option value="">All Ratings</option>
+                <option value="4">4+ Stars</option>
+                <option value="3">3+ Stars</option>
+                <option value="2">2+ Stars</option>
+              </select>
+            </div>
 
-            <select
-              className="filter-select"
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-            >
-              <option value="">All Ratings</option>
-              <option value="4">4+ Stars</option>
-              <option value="3">3+ Stars</option>
-              <option value="2">2+ Stars</option>
-            </select>
+            <div className="filter-group">
+              <label>Sort By</label>
+              <select
+                className="input-field"
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split('-')
+                  setSortBy(field)
+                  setSortOrder(order)
+                }}
+              >
+                <option value="createdAt-desc">Latest First</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="rating-asc">Rating: Low to High</option>
+                <option value="rating-desc">Rating: High to Low</option>
+              </select>
+            </div>
+          </Card>
+        </aside>
 
-            <select
-              className="filter-select"
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split('-')
-                setSortBy(field)
-                setSortOrder(order)
-              }}
-            >
-              <option value="createdAt-desc">Latest First</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating-asc">Rating: Low to High</option>
-              <option value="rating-desc">Rating: High to Low</option>
-            </select>
+        {/* Product Grid */}
+        <div className="products-content">
+          {error && <div className="alert alert-error">{error}</div>}
 
-            <button onClick={clearFilters} className="btn-clear">Clear Filters</button>
-          </div>
-        </div>
+          {loading ? (
+            <div className="loading-container">
+              <div className="spinner"></div>
+              <p>Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="empty-state">
+              <p>No products found matching your criteria.</p>
+              <Button variant="secondary" onClick={clearFilters} style={{ marginTop: '16px' }}>
+                Clear Filters
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="products-grid">
+                {products.map((p) => (
+                  <Card key={p._id} className="product-card" hover>
+                    <div className="product-image-container">
+                      {p.image ? (
+                        <img src={p.image} alt={p.name} className="product-image" />
+                      ) : (
+                        <div className="product-placeholder">
+                          <span className="emoji-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                              <line x1="3" y1="6" x2="21" y2="6"></line>
+                              <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                          </span>
+                        </div>
+                      )}
+                      {p.discount > 0 && (
+                        <span className="discount-badge">-{p.discount}%</span>
+                      )}
+                    </div>
+                    <div className="product-info">
+                      <h3 className="product-name">{p.name}</h3>
+                      <p className="product-category">{p.category}</p>
+                      <div className="product-price-row">
+                        <span className="price">${(p.price * (1 - (p.discount || 0) / 100)).toFixed(2)}</span>
+                        {p.discount > 0 && <span className="original-price">${p.price}</span>}
+                      </div>
+                      <Link to={`/customer/products/${p._id}`}>
+                        <Button variant="primary" className="btn-view">View Details</Button>
+                      </Link>
+                    </div>
+                  </Card>
+                ))}
+              </div>
 
-        {error && <div className="error">{error}</div>}
-
-        {loading ? (
-          <div className="loading">Loading products...</div>
-        ) : products.length === 0 ? (
-          <div className="empty-state">
-            <p>No products found.</p>
-          </div>
-        ) : (
-          <>
-            <div className="products-grid">
-              {products.map(product => (
-                <div
-                  key={product._id}
-                  className="product-card"
-                  onClick={() => navigate(`/customer/products/${product._id}`)}
+              <div className="pagination">
+                <Button
+                  variant="secondary"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
                 >
-                  <div className="product-header">
-                    <h3 className="product-name">{product.name}</h3>
-                    {product.discount > 0 && (
-                      <span className="discount-badge">-{product.discount}%</span>
-                    )}
-                  </div>
-                  <div className="product-sku">SKU: {product.sku}</div>
-                  <div className="product-category">{product.category}</div>
-                  <div className="product-rating">
-                    {'⭐'.repeat(Math.floor(product.rating || 0))} {product.rating || 0}/5
-                  </div>
-                  <div className="product-price">
-                    ${(product.price * (1 - (product.discount || 0) / 100)).toFixed(2)}
-                    {product.discount > 0 && (
-                      <span className="original-price">${product.price.toFixed(2)}</span>
-                    )}
-                  </div>
-                  <div className="product-reviews">{product.reviews || 0} reviews</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="pagination">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="pagination-btn"
-              >
-                Previous
-              </button>
-              <span className="pagination-info">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="pagination-btn"
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-      </main>
+                  Previous
+                </Button>
+                <span className="pagination-info">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="secondary"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
+
 
 

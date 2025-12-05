@@ -30,6 +30,7 @@ export const getDashboardAnalytics = async (req, res) => {
       {
         $group: {
           _id: "$product._id",
+          name: { $first: "$product.name" },
           totalQuantity: { $sum: "$products.quantity" },
           totalSales: {
             $sum: {
@@ -60,7 +61,7 @@ export const getDashboardAnalytics = async (req, res) => {
         $project: {
           _id: 0,
           productId: "$_id",
-          name: "$product.name",
+          name: 1,
           totalQuantity: 1,
           totalSales: 1
         }

@@ -13,6 +13,7 @@ import CustomerHome from './pages/CustomerHome'
 import Cart from './pages/Cart'
 import CustomerOrders from './pages/CustomerOrders'
 import CustomerProductDetail from './pages/CustomerProductDetail'
+import Layout from './components/Layout'
 
 // Basic auth check
 function ProtectedRoute({ children }) {
@@ -27,7 +28,11 @@ function SellerRoute({ children }) {
   if (user?.role !== 'seller') {
     return <Navigate to="/customer/home" replace />
   }
-  return children
+  return (
+    <Layout>
+      {children}
+    </Layout>
+  )
 }
 
 function CustomerRoute({ children }) {
@@ -37,7 +42,11 @@ function CustomerRoute({ children }) {
   if (user?.role !== 'customer') {
     return <Navigate to="/seller/dashboard" replace />
   }
-  return children
+  return (
+    <Layout>
+      {children}
+    </Layout>
+  )
 }
 
 export default function App() {
