@@ -242,6 +242,52 @@
     font-family: var(--font-display);
 }
 
+/* Stock Warnings */
+.stock-warning {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    margin-top: 4px;
+}
+
+.out-of-stock-warning {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.insufficient-stock-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.stock-available {
+    font-size: 0.85rem;
+    color: #22c55e;
+    margin-top: 4px;
+}
+
+/* Out of Stock Item Styling */
+.cart-item-card.out-of-stock-item {
+    opacity: 0.7;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.cart-item-card.insufficient-stock-item {
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.qty-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.qty-btn:disabled:hover {
+    background: transparent;
+    color: white;
+}
+
 /* Summary Card */
 .summary-card {
     position: sticky;

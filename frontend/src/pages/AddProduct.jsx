@@ -14,6 +14,7 @@ export default function AddProduct() {
     sku: '',
     price: '',
     discount: '',
+    stock: '',
     category: '',
     rating: '',
     reviews: '',
@@ -42,37 +43,41 @@ export default function AddProduct() {
 
   function validateForm() {
     const newErrors = {}
-    
+
     if (!form.name.trim()) {
       newErrors.name = 'Product name is required'
     }
-    
+
     if (!form.sku.trim()) {
       newErrors.sku = 'SKU is required'
     } else if (form.sku.length < 3) {
       newErrors.sku = 'SKU must be at least 3 characters'
     }
-    
+
     if (!form.price || parseFloat(form.price) <= 0) {
       newErrors.price = 'Valid price is required (must be greater than 0)'
     }
-    
+
     if (form.discount && (parseFloat(form.discount) < 0 || parseFloat(form.discount) > 100)) {
       newErrors.discount = 'Discount must be between 0 and 100'
     }
-    
+
     if (!form.category.trim()) {
       newErrors.category = 'Category is required'
     }
-    
+
     if (form.rating && (parseFloat(form.rating) < 0 || parseFloat(form.rating) > 5)) {
       newErrors.rating = 'Rating must be between 0 and 5'
     }
-    
+
     if (form.reviews && parseInt(form.reviews) < 0) {
       newErrors.reviews = 'Reviews cannot be negative'
     }
-    
+
+    if (form.stock && parseInt(form.stock) < 0) {
+      newErrors.stock = 'Stock cannot be negative'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -94,6 +99,7 @@ export default function AddProduct() {
         sku: form.sku.trim().toUpperCase(),
         price: parseFloat(form.price),
         discount: form.discount ? parseFloat(form.discount) : 0,
+        stock: form.stock ? parseInt(form.stock) : 0,
         category: form.category.trim(),
         rating: form.rating ? parseFloat(form.rating) : 0,
         reviews: form.reviews ? parseInt(form.reviews) : 0,
@@ -150,7 +156,7 @@ export default function AddProduct() {
         <form onSubmit={handleSubmit} className="form">
           <div className="form-section">
             <h3 className="section-title">Basic Information</h3>
-            
+
             <label className={`field ${errors.name ? 'field-error' : ''}`}>
               <span className="label-text">
                 Product Name <span className="required">*</span>
@@ -200,7 +206,7 @@ export default function AddProduct() {
 
           <div className="form-section">
             <h3 className="section-title">Pricing & Discount</h3>
-            
+
             <div className="row two-cols">
               <label className={`field ${errors.price ? 'field-error' : ''}`}>
                 <span className="label-text">
@@ -239,11 +245,24 @@ export default function AddProduct() {
                 {errors.discount && <span className="field-error-text">{errors.discount}</span>}
               </label>
             </div>
+
+            <label className={`field ${errors.stock ? 'field-error' : ''}`}>
+              <span className="label-text">Stock Quantity</span>
+              <input
+                type="number"
+                placeholder="0"
+                className="input"
+                value={form.stock}
+                onChange={update('stock')}
+                min="0"
+              />
+              {errors.stock && <span className="field-error-text">{errors.stock}</span>}
+            </label>
           </div>
 
           <div className="form-section">
             <h3 className="section-title">Ratings & Reviews</h3>
-            
+
             <div className="row two-cols">
               <label className={`field ${errors.rating ? 'field-error' : ''}`}>
                 <span className="label-text">Rating (0-5)</span>

@@ -97,12 +97,12 @@ export default function ProductDetail() {
         <div className="detail-header">
           <Link to="/seller/products" className="btn-back">← Back to Products</Link>
           {user?.role === 'seller' && (
-            <div className="detail-actions">
+          <div className="detail-actions">
               <Link to={`/seller/products/${id}/edit`} className="btn-edit">Edit</Link>
-              <button onClick={handleDelete} disabled={deleting} className="btn-delete">
-                {deleting ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
+            <button onClick={handleDelete} disabled={deleting} className="btn-delete">
+              {deleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
           )}
         </div>
 

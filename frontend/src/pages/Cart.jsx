@@ -56,8 +56,12 @@ export default function Cart() {
         body: JSON.stringify({ productId, quantity })
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Failed to update cart')
-      setCart(data.cart)
+      if (!res.ok) {
+        setError(data.message || 'Failed to update cart')
+        return
+      }
+      await fetchCart() // Re-fetch to get populated product data
+      setError('')
     } catch (err) {
       setError(err.message || 'Failed to update cart')
     }
@@ -112,6 +116,7 @@ export default function Cart() {
   }
 
   const items = cart?.items || []
+  const hasOutOfStockItems = items.some(item => item.product && item.product.stock === 0)
   const total = items.reduce((sum, item) => {
     const p = item.product
     if (!p) return sum
@@ -168,7 +173,7 @@ export default function Cart() {
                 if (!p) return null
                 const finalPrice = p.price * (1 - (p.discount || 0) / 100)
                 return (
-                  <Card key={p._id} className="cart-item-card">
+                  <Card key={p._id} className={`cart-item-card ${p.stock === 0 ? 'out-of-stock-item' : item.quantity > p.stock ? 'insufficient-stock-item' : ''}`}>
                     <div className="cart-item-image">
                       {p.image ? (
                         <img src={p.image} alt={p.name} />
@@ -191,6 +196,11 @@ export default function Cart() {
                         <span>SKU: {p.sku}</span>
                         <span>{p.category}</span>
                       </div>
+                      {p.stock === 0 && (
+                        <div className="stock-warning out-of-stock-warning">
+                          Sorry, this item is currently out of stock
+                        </div>
+                      )}
                       <div className="cart-item-actions">
                         <div className="quantity-selector small">
                           <button
@@ -240,9 +250,9 @@ export default function Cart() {
                   className="btn-checkout"
                   onClick={placeOrder}
                   isLoading={placingOrder}
-                  disabled={items.length === 0}
+                  disabled={items.length === 0 || hasOutOfStockItems}
                 >
-                  Checkout
+                  {hasOutOfStockItems ? 'Remove out-of-stock items' : 'Checkout'}
                 </Button>
               </Card>
             </div>

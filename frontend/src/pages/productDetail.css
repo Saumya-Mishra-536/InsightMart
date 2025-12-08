@@ -245,6 +245,28 @@
   font-size: 1rem;
 }
 
+/* Stock Info */
+.stock-info {
+  margin-top: 12px;
+  font-size: 0.95rem;
+}
+
+.in-stock {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.out-of-stock-text {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--text-muted) !important;
+}
+
 /* Add to Cart Section */
 .add-to-cart-section {
   display: flex;

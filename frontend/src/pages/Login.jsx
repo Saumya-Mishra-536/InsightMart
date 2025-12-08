@@ -98,7 +98,12 @@ export default function Login() {
             <span>OR</span>
           </div>
 
-          <button className="social-btn">
+          <button
+            className="social-btn"
+            onClick={() => {
+              window.location.href = `${API_BASE}/api/auth/google`
+            }}
+          >
             <span className="icon">
               <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                 <g fill="#000" fillRule="evenodd">

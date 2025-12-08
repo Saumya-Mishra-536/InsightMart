@@ -25,7 +25,7 @@ export default function CustomerHome() {
   const [sortOrder, setSortOrder] = useState('desc')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const limit = 8
+  const limit = 5
 
   const token = localStorage.getItem('token')
   const prevFilters = useRef('')
@@ -247,7 +247,7 @@ export default function CustomerHome() {
             <>
               <div className="products-grid">
                 {products.map((p) => (
-                  <Card key={p._id} className="product-card" hover>
+                  <Card key={p._id} className={`product-card ${p.stock === 0 ? 'out-of-stock' : ''}`} hover>
                     <div className="product-image-container">
                       {p.image ? (
                         <img src={p.image} alt={p.name} className="product-image" />
@@ -264,6 +264,9 @@ export default function CustomerHome() {
                       )}
                       {p.discount > 0 && (
                         <span className="discount-badge">-{p.discount}%</span>
+                      )}
+                      {p.stock === 0 && (
+                        <span className="stock-badge out-of-stock-badge">Out of Stock</span>
                       )}
                     </div>
                     <div className="product-info">

@@ -197,34 +197,51 @@ export default function CustomerProductDetail() {
               {product.discount > 0 && (
                 <div className="discount-amount">You save ${(product.price - finalPrice).toFixed(2)}</div>
               )}
+              <div className="stock-info">
+                {product.stock === 0 && (
+                  <span className="out-of-stock-text">Sorry, this item is currently out of stock</span>
+                )}
+              </div>
             </div>
 
             <div className="add-to-cart-section">
-              <div className="quantity-selector">
-                <button
-                  className="qty-btn"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                >−</button>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="qty-input"
-                />
-                <button
-                  className="qty-btn"
-                  onClick={() => setQuantity(quantity + 1)}
-                >+</button>
-              </div>
-              <Button
-                variant="primary"
-                className="btn-add-cart"
-                onClick={handleAddToCart}
-                isLoading={cartLoading}
-              >
-                Add to Cart
-              </Button>
+              {product.stock > 0 ? (
+                <>
+                  <div className="quantity-selector">
+                    <button
+                      className="qty-btn"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    >−</button>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="qty-input"
+                    />
+                    <button
+                      className="qty-btn"
+                      onClick={() => setQuantity(quantity + 1)}
+                    >+</button>
+                  </div>
+                  <Button
+                    variant="primary"
+                    className="btn-add-cart"
+                    onClick={handleAddToCart}
+                    isLoading={cartLoading}
+                  >
+                    Add to Cart
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="secondary"
+                  className="btn-add-cart btn-disabled"
+                  disabled
+                >
+                  Out of Stock
+                </Button>
+              )}
             </div>
 
             <div className="meta-info">

@@ -143,6 +143,28 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Out of Stock Badge */
+.out-of-stock-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(100, 100, 100, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.product-card.out-of-stock {
+  opacity: 0.7;
+}
+
+.product-card.out-of-stock:hover {
+  transform: none;
+}
+
 .product-info {
   padding: 16px;
   display: flex;

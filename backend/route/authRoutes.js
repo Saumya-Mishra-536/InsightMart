@@ -118,5 +118,38 @@ router.post("/login", async (req, res) => {
   }
 });
 
-export default router;
+// Google OAuth Routes
+import passport from "../config/passport.js";
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+// Initiate Google OAuth
+router.get("/google", passport.authenticate("google", {
+  scope: ["profile", "email"],
+}));
+
+// Google OAuth Callback
+router.get("/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${FRONTEND_URL}/login?error=google_auth_failed`,
+  }),
+  (req, res) => {
+    try {
+      const { user, token } = req.user;
+      const userPayload = encodeURIComponent(JSON.stringify({
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }));
+
+      res.redirect(`${FRONTEND_URL}/auth/callback?token=${token}&user=${userPayload}`);
+    } catch (error) {
+      console.error("Google OAuth callback error:", error);
+      res.redirect(`${FRONTEND_URL}/login?error=callback_error`);
+    }
+  }
+);
+
+export default router;

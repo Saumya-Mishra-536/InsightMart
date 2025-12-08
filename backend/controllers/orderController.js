@@ -10,15 +10,32 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "No products given" });
     }
 
-    // Calculate total amount
+    // Calculate total amount and check stock availability
     let totalAmount = 0;
+    const productDetails = [];
 
     for (let item of products) {
       const product = await Product.findById(item.product);
       if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
+      // Check stock availability
+      if (product.stock < item.quantity) {
+        if (product.stock === 0) {
+          return res.status(400).json({
+            success: false,
+            message: `Sorry, "${product.name}" is currently out of stock`
+          });
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: `Sorry, only ${product.stock} units of "${product.name}" are available`
+          });
+        }
+      }
+
       const finalPrice = product.price - (product.price * (product.discount || 0)) / 100;
       totalAmount += finalPrice * item.quantity;
+      productDetails.push({ productId: product._id, quantity: item.quantity });
     }
 
     const newOrder = await Order.create({
@@ -26,6 +43,13 @@ export const createOrder = async (req, res) => {
       products,
       totalAmount,
     });
+
+    // Reduce stock for each product after successful order
+    for (let item of productDetails) {
+      await Product.findByIdAndUpdate(item.productId, {
+        $inc: { stock: -item.quantity }
+      });
+    }
 
     // Clear user's cart after successful order
     await Cart.findOneAndUpdate(
