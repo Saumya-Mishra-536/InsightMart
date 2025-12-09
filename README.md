@@ -31,7 +31,7 @@ Database (MongoDB with Mongoose)
 | Frontend | React.js, React Router, Vanilla CSS |
 | Backend | Node.js, Express.js |
 | Database | MongoDB + Mongoose |
-| Authentication | JWT, Google OAuth |
+| Authentication | JWT |
 | Charts | Chart.js |
 | Hosting | Vercel (Frontend), Render (Backend), MongoDB Atlas |
 
@@ -109,8 +109,6 @@ InsightMart/
 |--------|----------|-------------|
 | POST | /api/auth/signup | Register new user |
 | POST | /api/auth/login | Login & get JWT |
-| GET | /api/auth/google | Google OAuth login |
-| GET | /api/auth/google/callback | Google OAuth callback |
 
 ### Product APIs
 | Method | Endpoint | Description |
@@ -167,10 +165,6 @@ Create `.env`:
 ```env
 MONGO_URI=your_mongodb_atlas_url
 JWT_SECRET=your_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-BACKEND_URL=http://localhost:5001
-FRONTEND_URL=http://localhost:5173
 ```
 
 Start the server:

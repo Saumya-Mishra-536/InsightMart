@@ -4,8 +4,6 @@ dotenv.config(); // Load environment variables FIRST
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import session from "express-session";
-import passport, { configurePassport } from "./config/passport.js";
 
 // ============================================
 // Import all route modules
@@ -45,22 +43,6 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
-
-// Session middleware (required for Passport)
-app.use(session({
-  secret: process.env.SESSION_SECRET || "insightmart-secret-key",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  },
-}));
-
-// Initialize Passport
-configurePassport();
-app.use(passport.initialize());
-app.use(passport.session());
 
 // ============================================
 // API Routes
