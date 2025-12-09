@@ -116,7 +116,6 @@ export default function Cart() {
   }
 
   const items = cart?.items || []
-  const hasOutOfStockItems = items.some(item => item.product && item.product.stock === 0)
   const total = items.reduce((sum, item) => {
     const p = item.product
     if (!p) return sum
@@ -173,7 +172,7 @@ export default function Cart() {
                 if (!p) return null
                 const finalPrice = p.price * (1 - (p.discount || 0) / 100)
                 return (
-                  <Card key={p._id} className={`cart-item-card ${p.stock === 0 ? 'out-of-stock-item' : item.quantity > p.stock ? 'insufficient-stock-item' : ''}`}>
+                  <Card key={p._id} className="cart-item-card">
                     <div className="cart-item-image">
                       {p.image ? (
                         <img src={p.image} alt={p.name} />
@@ -196,11 +195,7 @@ export default function Cart() {
                         <span>SKU: {p.sku}</span>
                         <span>{p.category}</span>
                       </div>
-                      {p.stock === 0 && (
-                        <div className="stock-warning out-of-stock-warning">
-                          Sorry, this item is currently out of stock
-                        </div>
-                      )}
+
                       <div className="cart-item-actions">
                         <div className="quantity-selector small">
                           <button
@@ -250,9 +245,9 @@ export default function Cart() {
                   className="btn-checkout"
                   onClick={placeOrder}
                   isLoading={placingOrder}
-                  disabled={items.length === 0 || hasOutOfStockItems}
+                  disabled={items.length === 0}
                 >
-                  {hasOutOfStockItems ? 'Remove out-of-stock items' : 'Checkout'}
+                  Checkout
                 </Button>
               </Card>
             </div>

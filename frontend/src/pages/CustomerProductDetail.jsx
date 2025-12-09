@@ -198,8 +198,14 @@ export default function CustomerProductDetail() {
                 <div className="discount-amount">You save ${(product.price - finalPrice).toFixed(2)}</div>
               )}
               <div className="stock-info">
-                {product.stock === 0 && (
+                {product.stock === 0 ? (
                   <span className="out-of-stock-text">Sorry, this item is currently out of stock</span>
+                ) : (
+                  <span className="in-stock-text">
+                    {product.stock <= 5
+                      ? `Only ${product.stock} left in stock - order soon!`
+                      : `${product.stock} in stock`}
+                  </span>
                 )}
               </div>
             </div>
