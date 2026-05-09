@@ -37,31 +37,31 @@ Database (MongoDB with Mongoose)
 
 ## 3. Features
 
-### 🔐 Authentication & Authorization
+### Authentication & Authorization
 - JWT-secured login & signup
 - Google OAuth integration
 - Protected dashboard & API routes
 - Role-based access (Seller/Customer)
 
-### 📦 Product Management (CRUD) - Seller
+### Product Management (CRUD) - Seller
 - Add new products
 - Edit details → price, discount, rating, stock, etc.
 - Delete products
 - View all products
 
-### 🔍 Product Tools
+### Product Tools
 - Pagination (e.g., 10 items per page)
 - Searching (name, category, SKU)
 - Sorting (price, rating, date)
 - Filtering (category, rating, discount range)
 
-### 📊 Seller Dashboard & Data Visualization
+### Seller Dashboard & Data Visualization
 - Interactive charts for sales trends
 - Revenue analytics
 - Product performance metrics
 - Stock management overview
 
-### 🛒 Customer Features
+### Customer Features
 - Browse and search products
 - Add to cart functionality
 - Place orders
@@ -71,12 +71,12 @@ Database (MongoDB with Mongoose)
   - Category-wise purchase breakdown
   - Order history analytics
 
-### ⭐ Reviews & Ratings
+### Reviews & Ratings
 - Customers can leave product reviews
 - Star rating system
 - Review management
 
-### 🌐 Deployment
+### Deployment
 - Frontend → Vercel
 - Backend → Render
 - Database → MongoDB Atlas
